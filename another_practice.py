@@ -33,19 +33,14 @@ def data_for_forms(tax_form_names):
         # this creats an "iterable" to loop through all results
         results = soup.find("div", class_="picklistTable")
         
-        # print(results.prettify())
-
         form_data = results.find_all("tr", class_=["even", "odd"])
         all_form_years = []
 
         for form in form_data:
-            # print(form.prettify(), end="\n"*2)
-            checker = False
             product_number = form.find("td", class_="LeftCellSpacer")
 
-            if product_number.text.strip() == form_to_check and checker == False:
+            if product_number.text.strip() == form_to_check:
                 dict_for_data['Product Number'] = product_number.text.strip()
-                checker = True
                 form_title = form.find("td", class_="MiddleCellSpacer")
                 form_year = form.find("td", class_="EndCellSpacer")
                 
