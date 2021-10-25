@@ -10,11 +10,8 @@ dict_for_data = {}
 
 ##### HELPER FUNCTION
 
-def collect_all_form_years(all_form_years_list, even_form_data, odd_form_data):
-    for form in even_form_data:
-        form_year = form.find("td", class_="EndCellSpacer")
-        all_form_years.append(form_year.text.strip())
-    for form in odd_form_data:
+def collect_all_form_years(all_form_years_list, form_data):
+    for form in form_data:
         form_year = form.find("td", class_="EndCellSpacer")
         all_form_years.append(form_year.text.strip())
 
@@ -62,8 +59,8 @@ for form_to_check in tax_form_names:
     all_form_years = []
 
     # calls helper function to collect all the years the form is available
-    all_form_years_list = collect_all_form_years(all_form_years, even_form_data, odd_form_data)
-    # print(all_form_years_list)
+    all_form_years_list = collect_all_form_years(all_form_years, even_form_data)
+    all_form_years_list = collect_all_form_years(all_form_years, odd_form_data)    
 
     dict_for_data['Minimum Year'] = min(all_form_years)
     dict_for_data['Maximum Year'] = max(all_form_years)
