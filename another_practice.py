@@ -10,19 +10,16 @@ dict_for_data = {}
 
 ##### HELPER FUNCTION
 
-def collect_all_form_years(all_form_years_list, form_data):
-    for form in form_data:
-        form_year = form.find("td", class_="EndCellSpacer")
-        all_form_years_list.append(form_year.text.strip())
 
-    return all_form_years_list
+# def find_num_of_pages_to_search():
+
+
 
 ###### MAIN FUNCTION
 
-# num_of_pages_to_search = 
 
-# https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=25&sortColumn=sortOrder&value=Form+W-2&criteria=formNumber&resultsPerPage=25&isDescending=false
-# https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=Form+W-2&criteria=formNumber&resultsPerPage=25&isDescending=false
+
+
 def data_for_forms(tax_form_names):
     # TODO: iterate through pages somehow
     for form_to_check in tax_form_names:
@@ -38,9 +35,10 @@ def data_for_forms(tax_form_names):
         
         # print(results.prettify())
 
-        even_form_data = results.find_all("tr", class_=["even", "odd"])
+        form_data = results.find_all("tr", class_=["even", "odd"])
+        all_form_years = []
 
-        for form in even_form_data:
+        for form in form_data:
             # print(form.prettify(), end="\n"*2)
             checker = False
             product_number = form.find("td", class_="LeftCellSpacer")
@@ -49,15 +47,14 @@ def data_for_forms(tax_form_names):
                 dict_for_data['Product Number'] = product_number.text.strip()
                 checker = True
                 form_title = form.find("td", class_="MiddleCellSpacer")
-                dict_for_data['Title'] = form_title.text.strip()
-        
-        all_form_years = []
-
-        # calls helper function to collect all the years the form is available
-        all_form_years_list = collect_all_form_years(all_form_years, even_form_data)
-
-        dict_for_data['Minimum Year'] = min(all_form_years_list)
-        dict_for_data['Maximum Year'] = max(all_form_years_list)
+                form_year = form.find("td", class_="EndCellSpacer")
+                
+                # collect applicable years in a list to sort the min and max later
+                all_form_years.append(form_year.text.strip())
+                dict_for_data['Title'] = form_title.text.strip()        
+    
+        dict_for_data['Minimum Year'] = min(all_form_years)
+        dict_for_data['Maximum Year'] = max(all_form_years)
 
         json_object = json.dumps(dict_for_data, indent = 4) 
         print(json_object)
