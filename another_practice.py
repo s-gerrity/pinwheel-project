@@ -38,8 +38,7 @@ def data_for_forms(tax_form_names):
         
         # print(results.prettify())
 
-        even_form_data = results.find_all("tr", class_="even")
-        odd_form_data = results.find_all("tr", class_="odd")
+        even_form_data = results.find_all("tr", class_=["even", "odd"])
 
         for form in even_form_data:
             # print(form.prettify(), end="\n"*2)
@@ -56,10 +55,9 @@ def data_for_forms(tax_form_names):
 
         # calls helper function to collect all the years the form is available
         all_form_years_list = collect_all_form_years(all_form_years, even_form_data)
-        all_form_years_list = collect_all_form_years(all_form_years, odd_form_data)    
 
-        dict_for_data['Minimum Year'] = min(all_form_years)
-        dict_for_data['Maximum Year'] = max(all_form_years)
+        dict_for_data['Minimum Year'] = min(all_form_years_list)
+        dict_for_data['Maximum Year'] = max(all_form_years_list)
 
         json_object = json.dumps(dict_for_data, indent = 4) 
         print(json_object)
