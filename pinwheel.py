@@ -1,5 +1,6 @@
 
 import requests
+import json
 from bs4 import BeautifulSoup
 
 # Take in a list of tax form names
@@ -19,78 +20,50 @@ from bs4 import BeautifulSoup
 # parse website with bs3
 # to dl pdf file use python requests, remember to use flags
 
-tax_form_names = ["Form+W-2", "Form+1095-C"]
+tax_form_names = ["Form W-2", "Form 1095-C"]
+dict_for_data = {}
 
+def data_for_forms(tax_form_names):
+    # TODO: iterate through pages somehow
+    for form_to_check in tax_form_names:
+        new_URL = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
 
+        page = requests.get(new_URL)
 
-# #This code issues an HTTP GET request to the IRS webpage, customized
-# to allow us to iterate through different conditions. It retrieves the HTML data 
-# # that the server sends back and stores that data in a Python object.
-# TODO: iterate through tax forms list, replace indexed in
-# TODO: iterate through pages somehow
-URL = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=25&sortColumn=sortOrder&value=" + tax_form_names[0] + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
-page = requests.get(URL)
-# print(page.text)
+        # object that takes page.content, which is the HTML content you scraped, as its input
+        soup = BeautifulSoup(page.content, "html.parser")
 
-# #object that takes page.content, which is the HTML content you scraped, as its input
-soup = BeautifulSoup(page.content, "html.parser")
-# print(soup)
+        # this creats an "iterable" to loop through all results
+        results = soup.find("div", class_="picklistTable")
+        
+        form_data = results.find_all("tr", class_=["even", "odd"])
+        all_form_years = []
 
-# this creats an "iterable" to loop through all results
-results = soup.find("div", class_="picklistTable")
-# print(results)
+        for form in form_data:
+            product_number = form.find("td", class_="LeftCellSpacer")
 
-# prettify() formats results
-# print(results.prettify())
+            if product_number.text.strip() == form_to_check:
+                dict_for_data['Product Number'] = product_number.text.strip()
+                form_title = form.find("td", class_="MiddleCellSpacer")
+                form_year = form.find("td", class_="EndCellSpacer")
+                
+                # collect applicable years in a list to sort the min and max later
+                all_form_years.append(form_year.text.strip())
+                dict_for_data['Title'] = form_title.text.strip()        
+    
+        dict_for_data['Minimum Year'] = min(all_form_years)
+        dict_for_data['Maximum Year'] = max(all_form_years)
 
-# for paper in results:
-#     print(paper, end="\n"*2)
-
-# # pull text in an element and clean it up
-for paper in results:
-    product_number = paper.find("a", class_="LeftCellSpacer")
-    print(product_number)
-    # company_element = paper.find("h3", class_="company")
-    # location_element = paper.find("p", class_="location")
-    # print(product_number.text.strip())
-    # print(company_element.text.strip())
-    # print(location_element.text.strip())
-#     print()
-
-# # this matches exact strings
-# # python_jobs = results.find_all("h2", string="Python")
-# # print(python_jobs)
-
-# The lambda function looks at the text of each <h2> element, converts it to 
-# lowercase, and checks whether the substring "python" is found anywhere.
-# python_jobs = results.find_all(
-#     "h2", string=lambda text: "python" in text.lower()
-# )
-
-# # need to call parent of parent to encompass all sections that include data 
-# # we're wanting to show
-# python_job_elements = [
-#     h2_element.parent.parent.parent for h2_element in python_jobs
-# ]
-
-# # unpack and lable each section
-# for job_element in python_job_elements:
-
-#     title_element = job_element.find("h2", class_="title")
-#     company_element = job_element.find("h3", class_="company")
-#     location_element = job_element.find("p", class_="location")
-#     print(title_element.text.strip())
-#     print(company_element.text.strip())
-#     print(location_element.text.strip())
-#     #to print the actual link not the text shown on site, need to search by href
-#     links = job_element.find_all("a", string="Apply")
-#     for link in links:
-#         link_url = link["href"]
-#         print(link_url)
-#     print()
+        json_object = json.dumps(dict_for_data, indent = 4) 
+        print(json_object)
 
 
 
 
-# link to edit - value (iterate through list) and results per page (200)
-# https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=25&sortColumn=sortOrder&value=Form+W-2&criteria=formNumber&resultsPerPage=25&isDescending=false
+data_for_forms(tax_form_names)
+
+
+# sample download file urls
+# https://www.irs.gov/pub/irs-prior/fw2p--1990.pdf
+# https://www.irs.gov/pub/irs-prior/f1099c--2021.pdf
+

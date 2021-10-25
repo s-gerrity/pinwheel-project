@@ -29,6 +29,8 @@ def data_for_forms(tax_form_names):
 
         # object that takes page.content, which is the HTML content you scraped, as its input
         soup = BeautifulSoup(page.content, "html.parser")
+        links = soup.find_all('a')
+        print("Total Links Found:",links.__len__())
 
         # this creats an "iterable" to loop through all results
         results = soup.find("div", class_="picklistTable")
@@ -58,4 +60,9 @@ def data_for_forms(tax_form_names):
 
 
 data_for_forms(tax_form_names)
+
+
+# sample download file urls
+# https://www.irs.gov/pub/irs-prior/fw2p--1990.pdf
+# https://www.irs.gov/pub/irs-prior/f1099c--2021.pdf
 
