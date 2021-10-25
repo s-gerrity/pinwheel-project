@@ -26,26 +26,24 @@ import argparse
 # print('\n'.join(os.listdir(input_path)))
 
 # Create the parser
-my_parser = argparse.ArgumentParser(description='List the content of a folder')
+# my_parser = argparse.ArgumentParser(description='List the content of a folder')
 
-# Add the arguments
-my_parser.add_argument('Path',
-                       metavar='path',
-                       type=str,
-                       help='the path to list')
+# # Add the arguments
+# my_parser.add_argument('Path',
+#                        metavar='path',
+#                        type=str,
+#                        help='the path to list')
 
-# Execute the parse_args() method
-args = my_parser.parse_args()
+# # Execute the parse_args() method
+# args = my_parser.parse_args()
 
-input_path = args.Path
+# input_path = args.Path
 
-if not os.path.isdir(input_path):
-    print('The path specified does not exist')
-    sys.exit()
+# if not os.path.isdir(input_path):
+#     print('The path specified does not exist')
+#     sys.exit()
 
-print('\n'.join(os.listdir(input_path)))
-
-
+# print('\n'.join(os.listdir(input_path)))
 
 
 
@@ -54,48 +52,50 @@ print('\n'.join(os.listdir(input_path)))
 
 
 
-# ########################
-# # Beautiful Soup practice
 
-# #This code issues an HTTP GET request to the given URL. It retrieves the HTML data 
-# # that the server sends back and stores that data in a Python object.
-# URL = "https://realpython.github.io/fake-jobs/"
-# page = requests.get(URL)
-# # print(page.text)
 
-# #object that takes page.content, which is the HTML content you scraped, as its input
-# soup = BeautifulSoup(page.content, "html.parser")
-# # print(soup)
+########################
+# Beautiful Soup practice
 
-# # pull the element *id* you want
-# results = soup.find(id="ResultsContainer")
+#This code issues an HTTP GET request to the given URL. It retrieves the HTML data 
+# that the server sends back and stores that data in a Python object.
+URL = "https://realpython.github.io/fake-jobs/"
+page = requests.get(URL)
+# print(page.text)
 
-# #prettify() formats results
-# # print(results.prettify())
+#object that takes page.content, which is the HTML content you scraped, as its input
+soup = BeautifulSoup(page.content, "html.parser")
+# print(soup)
 
-# # this creats an "iterable" to loop through all results
-# job_elements = results.find_all("div", class_="card-content")
-# # print(job_elements)
+# pull the element *id* you want
+results = soup.find(id="ResultsContainer")
 
-# # for job_element in job_elements:
-# #     print(job_element, end="\n"*2)
+#prettify() formats results
+# print(results.prettify())
 
-# # pull text in an element and clean it up
-# # for job_element in job_elements:
-# #     title_element = job_element.find("h2", class_="title")
-# #     company_element = job_element.find("h3", class_="company")
-# #     location_element = job_element.find("p", class_="location")
-# #     print(title_element.text.strip())
-# #     print(company_element.text.strip())
-# #     print(location_element.text.strip())
-# #     print()
+# this creats an "iterable" to loop through all results
+job_elements = results.find_all("div", class_="card-content")
+# print(job_elements)
 
-# # this matches exact strings
-# # python_jobs = results.find_all("h2", string="Python")
-# # print(python_jobs)
+# for job_element in job_elements:
+#     print(job_element, end="\n"*2)
 
-# # The lambda function looks at the text of each <h2> element, converts it to 
-# # lowercase, and checks whether the substring "python" is found anywhere.
+# pull text in an element and clean it up
+# for job_element in job_elements:
+#     title_element = job_element.find("h2", class_="title")
+#     company_element = job_element.find("h3", class_="company")
+#     location_element = job_element.find("p", class_="location")
+#     print(title_element.text.strip())
+#     print(company_element.text.strip())
+#     print(location_element.text.strip())
+#     print()
+
+# this matches exact strings
+# python_jobs = results.find_all("h2", string="Python")
+# print(python_jobs)
+
+# The lambda function looks at the text of each <h2> element, converts it to 
+# lowercase, and checks whether the substring "python" is found anywhere.
 # python_jobs = results.find_all(
 #     "h2", string=lambda text: "python" in text.lower()
 # )
@@ -105,8 +105,9 @@ print('\n'.join(os.listdir(input_path)))
 # python_job_elements = [
 #     h2_element.parent.parent.parent for h2_element in python_jobs
 # ]
+# # print(python_job_elements)
 
-# # unpack and lable each section
+# # pack and lable each section
 # for job_element in python_job_elements:
 
 #     title_element = job_element.find("h2", class_="title")
