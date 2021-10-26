@@ -25,7 +25,7 @@ tax_forms_to_check = ["Form W-2", "Form 1095-C"]
 
 # TODO: pagenation
 
-def locate_data_on_page(soup, tax_form_info):
+def locate_data_on_page(soup):
 
     # this creats an "iterable" to loop through all results
     results = soup.find("div", class_="picklistTable")
@@ -35,7 +35,7 @@ def locate_data_on_page(soup, tax_form_info):
     return form_data
 
 
-def collect_tax_form_details(form_data, form_to_check, tax_form_info):
+def collect_tax_form_details(form_data, form_to_check):
     dict_for_data = {}
 
     for form in form_data:
@@ -50,7 +50,7 @@ def collect_tax_form_details(form_data, form_to_check, tax_form_info):
 
     return dict_for_data
 
-def collect_tax_years(form_data, form_to_check, tax_form_info):
+def collect_tax_years(form_data, form_to_check):
     all_form_years = {'Years': []}
 
     for form in form_data:
@@ -64,7 +64,7 @@ def collect_tax_years(form_data, form_to_check, tax_form_info):
     return all_form_years
 
 
-def get_min_max_years(all_form_years, dict_for_data, tax_form_info):
+def get_min_max_years(all_form_years, dict_for_data):
 
     dict_for_data['Minimum Year'] = min(all_form_years['Years'])
     dict_for_data['Maximum Year'] = max(all_form_years["Years"])
@@ -89,12 +89,11 @@ def get_tax_info(tax_forms_to_check):
 
         soup = BeautifulSoup(page.content, "html.parser")
 
-        form_data = locate_data_on_page(soup, tax_form_info)
-        dict_for_data = collect_tax_form_details(form_data, form_to_check, tax_form_info)
-        all_form_years = collect_tax_years(form_data, form_to_check, tax_form_info)
-        dict_with_form_data = get_min_max_years(all_form_years, dict_for_data, tax_form_info)
+        form_data = locate_data_on_page(soup)
+        dict_for_data = collect_tax_form_details(form_data, form_to_check)
+        all_form_years = collect_tax_years(form_data, form_to_check)
+        dict_with_form_data = get_min_max_years(all_form_years, dict_for_data)
         tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
-        print(tax_form_info, "hi")
 
     print(json.dumps(tax_form_info, indent = 4))
     
