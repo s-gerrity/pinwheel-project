@@ -20,55 +20,84 @@ from bs4 import BeautifulSoup
 # parse website with bs3
 # to dl pdf file use python requests, remember to use flags
 
-tax_form_names = ["Form W-2", "Form 1095-C"]
-dict_for_data = {}
+tax_forms_to_check = ["Form W-2", "Form 1095-C"]
 
-# TODO: break function into smaller functions
-# make soup, grab data, loop through data to label key: value pairs, mix and max, 
-# turn into json, pagenation
 
-def data_for_forms(tax_form_names):
-    # TODO: iterate through pages somehow
-    for form_to_check in tax_form_names:
-        print(form_to_check, "form_to_check")
-        new_URL = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+# TODO: pagenation
 
-        page = requests.get(new_URL)
+def locate_data_on_page(soup):
 
-        # object that takes page.content, which is the HTML content you scraped, as its input
-        soup = BeautifulSoup(page.content, "html.parser")
+    # this creats an "iterable" to loop through all results
+    results = soup.find("div", class_="picklistTable")
 
-        # this creats an "iterable" to loop through all results
-        results = soup.find("div", class_="picklistTable")
-        
-        form_data = results.find_all("tr", class_=["even", "odd"])
-        all_form_years = []
+    form_data = results.find_all("tr", class_=["even", "odd"])
 
-        for form in form_data:
+    return form_data
+
+
+def collect_tax_form_details(form_data, form_to_check):
+    dict_for_data = {}
+
+    for form in form_data:
+        product_number = form.find("td", class_="LeftCellSpacer")
+
+        if product_number.text.strip() == form_to_check:
+            dict_for_data['Product Number'] = product_number.text.strip()
+            form_title = form.find("td", class_="MiddleCellSpacer")
+
+            # collect applicable years in a list to sort the min and max later
+            dict_for_data['Title'] = form_title.text.strip()
+
+    return dict_for_data
+
+def collect_tax_years(form_data, form_to_check):
+    all_form_years = {'Years': []}
+
+    for form in form_data:
             product_number = form.find("td", class_="LeftCellSpacer")
 
             if product_number.text.strip() == form_to_check:
-                dict_for_data['Product Number'] = product_number.text.strip()
-                form_title = form.find("td", class_="MiddleCellSpacer")
                 form_year = form.find("td", class_="EndCellSpacer")
-                
-                # collect applicable years in a list to sort the min and max later
-                all_form_years.append(form_year.text.strip())
-                dict_for_data['Title'] = form_title.text.strip()        
+                all_form_years['Years'].append(form_year.text.strip())
+
+
+    return all_form_years
+
+
+def get_min_max_years(all_form_years, dict_for_data):
+
+    dict_for_data['Minimum Year'] = min(all_form_years['Years'])
+    dict_for_data['Maximum Year'] = max(all_form_years["Years"])
+
+    return dict_for_data
+
+
+def append_to_main_list_as_json(dict_with_form_data, tax_form_info):
+
+    tax_form_info.append(dict_with_form_data)
+
+    return tax_form_info
+
+
+def get_tax_info(tax_forms_to_check):
+    tax_form_info = []
+
+    for form_to_check in tax_forms_to_check:
+        url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+
+        page = requests.get(url)
+
+        soup = BeautifulSoup(page.content, "html.parser")
+
+        form_data = locate_data_on_page(soup)
+        dict_for_data = collect_tax_form_details(form_data, form_to_check)
+        all_form_years = collect_tax_years(form_data, form_to_check)
+        dict_with_form_data = get_min_max_years(all_form_years, dict_for_data)
+        tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
+
+    print(json.dumps(tax_form_info, indent = 4))
     
-        dict_for_data['Minimum Year'] = min(all_form_years)
-        dict_for_data['Maximum Year'] = max(all_form_years)
-
-        json_object = json.dumps(dict_for_data, indent = 4) 
-        return json_object
+    return print("All forms have been checked")
 
 
-
-
-print(data_for_forms(tax_form_names))
-
-
-# sample download file urls
-# https://www.irs.gov/pub/irs-prior/fw2p--1990.pdf
-# https://www.irs.gov/pub/irs-prior/f1099c--2021.pdf
-
+get_tax_info(tax_forms_to_check)
