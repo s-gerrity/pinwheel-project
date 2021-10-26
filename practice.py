@@ -65,11 +65,16 @@ tax_forms_to_check = ["Form W-2", "Form 1095-C"]
 
     
 
-def locate_data_on_page(url):
+def scrape_page(url):
 
     page = requests.get(url)
 
     soup = BeautifulSoup(page.content, "html.parser")
+
+    return soup
+
+
+def area_to_search_form_data(soup):
 
     # this creats an "iterable" to loop through all results
     results = soup.find("div", class_="picklistTable")
@@ -129,12 +134,17 @@ def make_url(form_to_check):
 
     return url
 
-# def scrape_page(new_url):
-#     url = new_url
 
+# def check_if_next_page(soup):
+#     results = soup.find("th", class_="NumPageViewed")
 
-
-#     return url 
+#     pagenation_links = results.find_all("a")
+#     # print(pagenation_links)
+#     # print()
+#     for item in pagenation_links:
+#         if "Next" in item.text:
+#             new_url = base_url + item['href']
+#     return 
 
 
 def get_tax_info(tax_forms_to_check):
@@ -142,11 +152,12 @@ def get_tax_info(tax_forms_to_check):
 
     for form_to_check in tax_forms_to_check:
 
-        # url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
         url = make_url(form_to_check)
-        form_data = locate_data_on_page(url)
+        soup = scrape_page(url)
+        form_data = area_to_search_form_data(soup)
         dict_for_data = collect_tax_form_details(form_data, form_to_check)
         all_form_years = collect_tax_years(form_data, form_to_check)
+        
         dict_with_form_data = get_min_max_years(all_form_years, dict_for_data)
         tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
 
