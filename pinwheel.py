@@ -23,9 +23,14 @@ from bs4 import BeautifulSoup
 tax_form_names = ["Form W-2", "Form 1095-C"]
 dict_for_data = {}
 
+# TODO: break function into smaller functions
+# make soup, grab data, loop through data to label key: value pairs, mix and max, 
+# turn into json, pagenation
+
 def data_for_forms(tax_form_names):
     # TODO: iterate through pages somehow
     for form_to_check in tax_form_names:
+        print(form_to_check, "form_to_check")
         new_URL = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
 
         page = requests.get(new_URL)
@@ -55,12 +60,12 @@ def data_for_forms(tax_form_names):
         dict_for_data['Maximum Year'] = max(all_form_years)
 
         json_object = json.dumps(dict_for_data, indent = 4) 
-        print(json_object)
+        return json_object
 
 
 
 
-data_for_forms(tax_form_names)
+print(data_for_forms(tax_form_names))
 
 
 # sample download file urls
