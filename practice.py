@@ -123,11 +123,11 @@ def append_to_main_list_as_json(dict_with_form_data, tax_form_info):
     return tax_form_info
 
 
-# def make_url():
+def make_url(form_to_check):
 
-#     base_url = "x"
+    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
 
-
+    return url
 
 # def scrape_page(new_url):
 #     url = new_url
@@ -142,8 +142,8 @@ def get_tax_info(tax_forms_to_check):
 
     for form_to_check in tax_forms_to_check:
 
-        url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
-
+        # url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+        url = make_url(form_to_check)
         form_data = locate_data_on_page(url)
         dict_for_data = collect_tax_form_details(form_data, form_to_check)
         all_form_years = collect_tax_years(form_data, form_to_check)
