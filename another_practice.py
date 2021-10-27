@@ -1,71 +1,66 @@
 # start by only pulling the product num and title, then returning JSON
 
 import requests
-import json
+import os
 from bs4 import BeautifulSoup
 
-# list of all tax forms we need to pull
-tax_form_names = ["Form W-2", "Form 1095-C"]
-json_form_data = {
-    "Product Number": "Form 1095-C",
-    "Title": "Employer-Provided Health Insurance Offer and Coverage",
-    "Minimum Year": "2014",
-    "Maximum Year": "2020"
-}
+
+tax_form_name = "Form W-2"
+start_year = 2018
+end_year = 2020
 
 
-###### MAIN FUNCTION
+def get_url(tax_form_name):
+    form_name = tax_form_name.lower()
+
+    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_name + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+
+    return url
 
 
-def download_tax_form_pdfs(json_form_data):
-#     # TODO: iterate through pages somehow
+def scrape_page(url):
+    page = requests.get(url)
 
-        url_form_name = json_form_data["Product Number"].lower()
-        # print(url_form_name)
-        
-        new_URL = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + url_form_name + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
-        # print(new_URL)
+    soup = BeautifulSoup(page.content, "html.parser")
 
-        page = requests.get(new_URL)
+    return soup
 
-        # # object that takes page.content, which is the HTML content you scraped, as its input
-        soup = BeautifulSoup(page.content, "html.parser")
-        # print(soup)
 
-        links = soup.find_all('a')
+def get_links(soup, start_year, end_year):
+    list_of_pdf_links = []
+
+    links = soup.find_all('a')
+    for i in range(start_year, end_year+1):
+        print(i)
+    
         for link in links:
             link_url = link["href"]
-            if 'pdf' in link_url:
-                with open('tax_form_pdfs/' + json_form_data["Product Number"] + ' - ' + json_form_data["Product Number"] + '.pdf') as f:
-                    f.write(page.content)
-        # i = 0
-        # for link in links[:23]:
-        #     if ('.pdf' in link.get('href', [])):
-        #         i += 1
-        #         print("Downloading file: ", i)
-  
-        # # # Get response object for link
-        #         response = requests.get(link.get('href'))
-        #         print(link.get('href'))
-        #         pdf = open("pdf"+str(i)+".pdf", 'wb')
-        #         pdf.write(response.content)
-        #         pdf.close()
-        #         print("File ", i, " downloaded")
-                # with open('tax_form_pdfs/' + product_number + ' - ' + form_year + '.pdf') as f:
-                #     f.write(response.content)
-  
-        # print("All PDF files downloaded")
-        # print(links.text.strip())
-        # filelink = link for link in links: if ('.pdf' in link.get('href')): print(link.get('href')) filelink = link.get('href') 
-        # print(filelink)
-        # break
+            if 'pdf' in link_url and str(i) in link_url:
+                list_of_pdf_links.append(link_url)
+    return list_of_pdf_links
+
+
+def download_pdfs_and_save(tax_form_name, start_year, end_year):
+    #   TODO: pagination and download
+
+    url = get_url(tax_form_name)
+    soup = scrape_page(url)
+    list_of_pdf_links = get_links(soup, start_year, end_year)
+
+    # print(list_of_pdf_links)
+
+
+        #         with open(tax_form_name + "/" + tax_form_name + " - " + str(i) + ".pdf", 'wb') as f:
+        #             f.write(page.content)
+        #             f.close()
 
 
 
-download_tax_form_pdfs(json_form_data)
+
+    # print(tax_form_name + "/" + tax_form_name + " - 2020.pdf")
 
 
-# sample download file urls
-# https://www.irs.gov/pub/irs-prior/fw2p--1990.pdf
-# https://www.irs.gov/pub/irs-prior/f1099c--2021.pdf
+        
+        
 
+# download_pdfs_and_save(tax_form_name, start_year, end_year)

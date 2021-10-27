@@ -1,15 +1,7 @@
 
 import requests
 import json
-import re
 from bs4 import BeautifulSoup
-
-
-# click (cli)
-# optional arg parse - stnd py package (cli)
-
-# parse website with bs3
-# to dl pdf file use python requests, remember to use flags
 
 tax_forms_to_check = ["Form W-2", "Form 1095-C"]
     
@@ -19,9 +11,6 @@ def scrape_page(url):
     page = requests.get(url)
 
     soup = BeautifulSoup(page.content, "html.parser")
-
-    print("SCRAPE WITH URL", url)
-    print()
 
     return soup
 
@@ -88,20 +77,16 @@ def make_url(form_to_check):
 
 def check_if_next_page(soup, base_url):
     url = "https://apps.irs.gov"
-    print(base_url, "BASE")
-    print()
+
     results = soup.find("th", class_="NumPageViewed")
 
     pagenation_links = results.find_all("a")
-    # print(pagenation_links)
-    # print()
-    # print("SJDSJDHBVDJBVDJVB")
+
     for item in pagenation_links:
-        print(item)
-        print()
+
         if "Next" in item.text:
             new_url = url + item['href']
-            print(new_url, "new url")
+
             return new_url
     
     return None
@@ -128,16 +113,9 @@ def get_data(dict_for_data, all_form_years, form_to_check, tax_form_info, url):
         soup = scrape_page(url)
         form_data = area_to_search_form_data(soup)
         dict_for_data = collect_tax_form_details(dict_for_data, form_data, form_to_check)
-        print(dict_for_data, "dict_for_data")
-        print()
         all_form_years = collect_tax_years(all_form_years, form_data, form_to_check)
-        print(all_form_years, "all_form_years")
-        print()
         if_next = check_if_next_page(soup, url)
-        print(if_next, "if_next")
-        print()
         if if_next != None:
-            print("SDJFSDJBHDJHBVDLKVNKSDNVDKBVJDB")
             get_data(dict_for_data, all_form_years, form_to_check, tax_form_info, if_next)
         else:
             finalize_data(all_form_years, dict_for_data, tax_form_info)
@@ -148,8 +126,4 @@ def finalize_data(all_form_years, dict_for_data, tax_form_info):
     tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
 
 
-
 get_tax_info(tax_forms_to_check)
-
-# start_checking()
-# go_to_next_page()
