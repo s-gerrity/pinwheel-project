@@ -12,57 +12,6 @@ from bs4 import BeautifulSoup
 # to dl pdf file use python requests, remember to use flags
 
 tax_forms_to_check = ["Form W-2", "Form 1095-C"]
-
-
-# TODO: pagenation
-
-# url_last_page = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=200&sortColumn=sortOrder&value=Form+w-2&criteria=formNumber&resultsPerPage=200&isDescending=false"
-# url_not_last_page = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?resultsPerPage=200&sortColumn=sortOrder&indexOfFirstRow=0&criteria=formNumber&value=Form+w-2&isDescending=false"
-# base_url = "https://apps.irs.gov"
-# page_four = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=75&sortColumn=sortOrder&value=Form+w-2&criteria=formNumber&resultsPerPage=25&isDescending=false"
-
-# def start_checking():
-
-#     page = requests.get(url_not_last_page)
-
-#     soup = BeautifulSoup(page.content, "html.parser")
-
-#     results = soup.find("th", class_="NumPageViewed")
-
-#     pagenation_links = results.find_all("a")
-#     print(pagenation_links)
-#     print()
-#     for item in pagenation_links:
-#         if "Next" in item.text:
-#             new_url = base_url + item['href']
-#     return 
-
-
-# def go_to_next_page():
-#     # take in the url and change it. update index begins.
-
-#     # takes url
-#     page = requests.get(page_four)
-
-#     # gets all page content
-#     soup = BeautifulSoup(page.content, "html.parser")
-
-#     # finds on the page the link within "next", but without the base url
-#     next_page = soup.find('a', text=re.compile(r'.*Next.*'))
-#     if next_page == None:
-#         print("next page none")
-#         print()
-#     else:
-#         print(next_page['href'])
-#         print("new link: " + base_url + next_page['href'])
-
-
-# pseudocode
-# do we check for next after we've scraped the page already once?
-# if next in <a> tag
-# move to next page and keep adding to the same json set
-# add 200 to the urls start index on
-
     
 
 def scrape_page(url):
