@@ -4,6 +4,22 @@ import requests
 import os
 from bs4 import BeautifulSoup
 
+# TODO: fix infinite loop pagination; add mk dir and download files
+#pseudocode
+# make a directory for the pdfs to be saved in
+# make a list of the years needed for pdf dl's
+# search the first page a pdf with the name and year
+# if pdf found, add link to a list
+# open a file in the new directory
+# copy pdf wb into new file
+# name file form/form - year.pdf 
+# pop year off the list
+# if list empty when page search ends
+# check if there is another page to search
+# if not, leave and end
+# if there is, search page for years in list
+# if no more pages, return output reporting this form - year not available
+
 
 tax_form_name = "Form W-2"
 start_year = 2018
@@ -40,12 +56,41 @@ def get_links(soup, start_year, end_year):
     return list_of_pdf_links
 
 
-def download_pdfs_and_save(tax_form_name, start_year, end_year):
+def check_if_next_page(soup):
+    url = "https://apps.irs.gov"
+
+    results = soup.find("th", class_="NumPageViewed")
+
+    pagenation_links = results.find_all("a")
+
+    for item in pagenation_links:
+
+        if "Next" in item.text:
+            new_url = url + item['href']
+
+            return new_url
+    
+    return None
+
+
+
+def download_pdfs_and_save(tax_form_name):
     #   TODO: pagination and download
 
     url = get_url(tax_form_name)
+    
+    list_of_pdf_links = get_downloads(url, start_year, end_year)
+
+    # return list_of_pdf_links
+
+def get_downloads(url, start_year, end_year):
     soup = scrape_page(url)
     list_of_pdf_links = get_links(soup, start_year, end_year)
+    if_next = check_if_next_page(soup)
+    if if_next != None:
+        get_downloads(url, start_year, end_year)
+    else:
+        # return list_of_pdf_links
 
     # print(list_of_pdf_links)
 
@@ -63,4 +108,4 @@ def download_pdfs_and_save(tax_form_name, start_year, end_year):
         
         
 
-# download_pdfs_and_save(tax_form_name, start_year, end_year)
+# print(download_pdfs_and_save(tax_form_name))
