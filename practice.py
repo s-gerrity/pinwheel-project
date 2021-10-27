@@ -71,6 +71,8 @@ def scrape_page(url):
 
     soup = BeautifulSoup(page.content, "html.parser")
 
+    print("SCRAPE WITH URL", url)
+
     return soup
 
 
@@ -84,8 +86,8 @@ def area_to_search_form_data(soup):
     return form_data
 
 
-def collect_tax_form_details(form_data, form_to_check):
-    dict_for_data = {}
+def collect_tax_form_details(dict_for_data, form_data, form_to_check):
+    
 
     for form in form_data:
         product_number = form.find("td", class_="LeftCellSpacer")
@@ -144,8 +146,8 @@ def check_if_next_page(soup, base_url):
     # print()
     # print("SJDSJDHBVDJBVDJVB")
     for item in pagenation_links:
-        # print(item)
-        # print()
+        print(item)
+        print()
         if "Next" in item.text:
             new_url = base_url + item['href']
             print(new_url, "new url")
@@ -159,26 +161,28 @@ def get_tax_info(tax_forms_to_check):
     url = "https://apps.irs.gov"
 
     for form_to_check in tax_forms_to_check:
+        dict_for_data = {}
 
         url = make_url(form_to_check)
         
 
-        get_data(form_to_check, tax_form_info, url)
+        get_data(dict_for_data, form_to_check, tax_form_info, url)
     
     print(json.dumps(tax_form_info, indent = 4))
     
     return print("All forms have been checked")
         
 
-def get_data(form_to_check, tax_form_info, url):
+def get_data(dict_for_data, form_to_check, tax_form_info, url):
         soup = scrape_page(url)
         form_data = area_to_search_form_data(soup)
-        dict_for_data = collect_tax_form_details(form_data, form_to_check)
+        dict_for_data = collect_tax_form_details(dict_for_data, form_data, form_to_check)
+        print(dict_for_data, "dict_for_data")
         all_form_years = collect_tax_years(form_data, form_to_check)
         if_next = check_if_next_page(soup, url)
         if if_next != None:
             print("SDJFSDJBHDJHBVDLKVNKSDNVDKBVJDB")
-            get_data(form_to_check, tax_form_info, if_next)
+            get_data(dict_for_data, form_to_check, tax_form_info, if_next)
         else:
             finalize_data(all_form_years, dict_for_data, tax_form_info)
             
