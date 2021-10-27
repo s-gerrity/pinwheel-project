@@ -135,35 +135,55 @@ def make_url(form_to_check):
     return url
 
 
-# def check_if_next_page(soup):
-#     results = soup.find("th", class_="NumPageViewed")
+def check_if_next_page(soup, base_url):
+    print(base_url, "BASE")
+    results = soup.find("th", class_="NumPageViewed")
 
-#     pagenation_links = results.find_all("a")
-#     # print(pagenation_links)
-#     # print()
-#     for item in pagenation_links:
-#         if "Next" in item.text:
-#             new_url = base_url + item['href']
-#     return 
+    pagenation_links = results.find_all("a")
+    # print(pagenation_links)
+    # print()
+    for item in pagenation_links:
+        if "Next" in item.text:
+            new_url = base_url + item['href']
+            return new_url
+        else:
+
+            return None
 
 
 def get_tax_info(tax_forms_to_check):
     tax_form_info = []
+    base_url = "https://apps.irs.gov"
 
     for form_to_check in tax_forms_to_check:
 
         url = make_url(form_to_check)
         soup = scrape_page(url)
-        form_data = area_to_search_form_data(soup)
-        dict_for_data = collect_tax_form_details(form_data, form_to_check)
-        all_form_years = collect_tax_years(form_data, form_to_check)
-        
-        dict_with_form_data = get_min_max_years(all_form_years, dict_for_data)
-        tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
 
+        get_data(soup, form_to_check, tax_form_info, base_url)
+    
     print(json.dumps(tax_form_info, indent = 4))
     
     return print("All forms have been checked")
+        
+
+def get_data(soup, form_to_check, tax_form_info, base_url):
+        form_data = area_to_search_form_data(soup)
+        dict_for_data = collect_tax_form_details(form_data, form_to_check)
+        all_form_years = collect_tax_years(form_data, form_to_check)
+        if_next = check_if_next_page(soup, base_url)
+        if if_next != None:
+            print("SDJFSDJBHDJHBVDLKVNKSDNVDKBVJDB")
+            pass
+        else:
+            finalize_data(all_form_years, dict_for_data, tax_form_info)
+            
+
+def finalize_data(all_form_years, dict_for_data, tax_form_info):
+    dict_with_form_data = get_min_max_years(all_form_years, dict_for_data)
+    tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
+
+
 
 
 get_tax_info(tax_forms_to_check)
