@@ -130,7 +130,7 @@ def append_to_main_list_as_json(dict_with_form_data, tax_form_info):
 
 def make_url(form_to_check):
 
-    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_to_check.lower() + "&criteria=formNumber&resultsPerPage=200&isDescending=false"
 
     return url
 
@@ -142,39 +142,43 @@ def check_if_next_page(soup, base_url):
     pagenation_links = results.find_all("a")
     # print(pagenation_links)
     # print()
+    # print("SJDSJDHBVDJBVDJVB")
     for item in pagenation_links:
+        # print(item)
+        # print()
         if "Next" in item.text:
             new_url = base_url + item['href']
+            print(new_url, "new url")
             return new_url
-        else:
-
-            return None
+    
+    return None
 
 
 def get_tax_info(tax_forms_to_check):
     tax_form_info = []
-    base_url = "https://apps.irs.gov"
+    url = "https://apps.irs.gov"
 
     for form_to_check in tax_forms_to_check:
 
         url = make_url(form_to_check)
-        soup = scrape_page(url)
+        
 
-        get_data(soup, form_to_check, tax_form_info, base_url)
+        get_data(form_to_check, tax_form_info, url)
     
     print(json.dumps(tax_form_info, indent = 4))
     
     return print("All forms have been checked")
         
 
-def get_data(soup, form_to_check, tax_form_info, base_url):
+def get_data(form_to_check, tax_form_info, url):
+        soup = scrape_page(url)
         form_data = area_to_search_form_data(soup)
         dict_for_data = collect_tax_form_details(form_data, form_to_check)
         all_form_years = collect_tax_years(form_data, form_to_check)
-        if_next = check_if_next_page(soup, base_url)
+        if_next = check_if_next_page(soup, url)
         if if_next != None:
             print("SDJFSDJBHDJHBVDLKVNKSDNVDKBVJDB")
-            pass
+            get_data(form_to_check, tax_form_info, if_next)
         else:
             finalize_data(all_form_years, dict_for_data, tax_form_info)
             
@@ -182,7 +186,6 @@ def get_data(soup, form_to_check, tax_form_info, base_url):
 def finalize_data(all_form_years, dict_for_data, tax_form_info):
     dict_with_form_data = get_min_max_years(all_form_years, dict_for_data)
     tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
-
 
 
 
