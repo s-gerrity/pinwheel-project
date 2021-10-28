@@ -21,75 +21,75 @@ from bs4 import BeautifulSoup
 # if no more pages, return output reporting this form - year not available
 
 
-tax_form_name = "Form W-2"
-start_year = 2018
-end_year = 2020
+# tax_form_name = "Form W-2"
+# start_year = 2018
+# end_year = 2020
 
 
-def get_url(tax_form_name):
-    form_name = tax_form_name.lower()
+# def get_url(tax_form_name):
+#     form_name = tax_form_name.lower()
 
-    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_name + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+#     url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_name + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
 
-    return url
-
-
-def scrape_page(url):
-    page = requests.get(url)
-
-    soup = BeautifulSoup(page.content, "html.parser")
-
-    return soup
+#     return url
 
 
-def get_links(soup, start_year, end_year):
-    list_of_pdf_links = []
+# def scrape_page(url):
+#     page = requests.get(url)
 
-    links = soup.find_all('a')
-    for i in range(start_year, end_year+1):
-        print(i)
+#     soup = BeautifulSoup(page.content, "html.parser")
+
+#     return soup
+
+
+# def get_links(soup, start_year, end_year):
+#     list_of_pdf_links = []
+
+#     links = soup.find_all('a')
+#     for i in range(start_year, end_year+1):
+#         print(i)
     
-        for link in links:
-            link_url = link["href"]
-            if 'pdf' in link_url and str(i) in link_url:
-                list_of_pdf_links.append(link_url)
-    return list_of_pdf_links
+#         for link in links:
+#             link_url = link["href"]
+#             if 'pdf' in link_url and str(i) in link_url:
+#                 list_of_pdf_links.append(link_url)
+#     return list_of_pdf_links
 
 
-def check_if_next_page(soup):
-    url = "https://apps.irs.gov"
+# def check_if_next_page(soup):
+#     url = "https://apps.irs.gov"
 
-    results = soup.find("th", class_="NumPageViewed")
+#     results = soup.find("th", class_="NumPageViewed")
 
-    pagenation_links = results.find_all("a")
+#     pagenation_links = results.find_all("a")
 
-    for item in pagenation_links:
+#     for item in pagenation_links:
 
-        if "Next" in item.text:
-            new_url = url + item['href']
+#         if "Next" in item.text:
+#             new_url = url + item['href']
 
-            return new_url
+#             return new_url
     
-    return None
+#     return None
 
 
 
-def download_pdfs_and_save(tax_form_name):
-    #   TODO: pagination and download
+# def download_pdfs_and_save(tax_form_name):
+#     #   TODO: pagination and download
 
-    url = get_url(tax_form_name)
+#     url = get_url(tax_form_name)
     
-    list_of_pdf_links = get_downloads(url, start_year, end_year)
+#     list_of_pdf_links = get_downloads(url, start_year, end_year)
 
-    # return list_of_pdf_links
+#     # return list_of_pdf_links
 
-def get_downloads(url, start_year, end_year):
-    soup = scrape_page(url)
-    list_of_pdf_links = get_links(soup, start_year, end_year)
-    if_next = check_if_next_page(soup)
-    if if_next != None:
-        get_downloads(url, start_year, end_year)
-    else:
+# def get_downloads(url, start_year, end_year):
+#     soup = scrape_page(url)
+#     list_of_pdf_links = get_links(soup, start_year, end_year)
+#     if_next = check_if_next_page(soup)
+#     if if_next != None:
+#         get_downloads(url, start_year, end_year)
+#     else:
         # return list_of_pdf_links
 
     # print(list_of_pdf_links)
@@ -104,8 +104,24 @@ def get_downloads(url, start_year, end_year):
 
     # print(tax_form_name + "/" + tax_form_name + " - 2020.pdf")
 
+        
+subdirectory_for_pdfs = 'tax_form_pdfs'
 
-        
-        
+if not os.path.exists(subdirectory_for_pdfs):
+    os.mkdir(subdirectory_for_pdfs)
+    print("Directory " , subdirectory_for_pdfs ,  " Created ")
+else:    
+    print("Directory ", subdirectory_for_pdfs ,  " already exists")
+
+path = subdirectory_for_pdfs
+file_name = 'sammy.txt'
+
+complete_name = os.path.join(path, file_name)
+
+create_file = open(complete_name, 'w')
+create_file.write('please add to the right directory')
+create_file.close()
+
+
 
 # print(download_pdfs_and_save(tax_form_name))
