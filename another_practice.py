@@ -48,12 +48,13 @@ def get_pdf_links(soup, start_year, end_year):
 
     links = soup.find_all('a')
     for i in range(start_year, end_year+1):
+        list_of_form_years.append(i)
+
     
         for link in links:
             link_url = link["href"]
             if 'pdf' in link_url and str(i) in link_url:
                 list_of_pdf_links.append(link_url)
-                list_of_form_years.append(i)
     return list_of_pdf_links, list_of_form_years
 
 def make_subdirectory_for_pdfs():
@@ -80,24 +81,11 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years):
         r = requests.get(url) 
         print(url)
         print()
-        with open(complete_name, 'wb') as f:
-            f.write(r.content)
-            f.close()
+        # with open(complete_name, 'wb') as f:
+        #     f.write(r.content)
+        #     f.close()
+
     print("completed downloads")
-
-        
-        # complete_name = os.path.join(path, file_name)
-
-# create_file = open(complete_name, 'w')
-# create_file.write('please add to the right directory')
-# create_file.close()
-            # complete_name = os.path.join(path, file_name)
-
-            # create_file = open(complete_name, 'w')
-            # create_file.write('please add to the right directory')
-            # create_file.close()
-
-    
 
 
 def check_if_next_page(soup):
@@ -118,8 +106,6 @@ def check_if_next_page(soup):
 
 
 def download_pdfs_and_save(tax_form_name):
-    #   TODO: download
-
     url = get_url(tax_form_name)
     
     list_of_forms = get_downloads(url, start_year, end_year)
@@ -134,50 +120,24 @@ def get_downloads(url, start_year, end_year):
     list_of_pdf_links = list_of_forms[0]
     list_of_pdf_years = list_of_forms[1]
 
-    # print(list_of_forms)
     if list_of_forms == []:
         print("list is empty!")
     else:
         subdirectory_for_pdfs = make_subdirectory_for_pdfs()
         done = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years)
 
+    # check if pagination is necessary
+    if len(list_of_pdf_years) != len(list_of_pdf_links):
+        print("need to paginate")
 
-    # if_next = check_if_next_page(soup)
-    # if if_next != None:
-    #     print("link for if_next, exiting main function")
-    #     # get_downloads(url, start_year, end_year)
-    # else:
-    #     return list_of_forms
+        # if_next = check_if_next_page(soup)
+        # if if_next != None:
+        #     print("link for if_next, exiting main function")
+        #     # get_downloads(url, start_year, end_year)
+        # else:
+        #     return list_of_forms
 
     # print(list_of_pdf_links)
-
-
-    #             with open(tax_form_name + "/" + tax_form_name + " - " + str(i) + ".pdf", 'wb') as f:
-    #                 f.write(page.content)
-    #                 f.close()
-
-
-
-
-    # print(tax_form_name + "/" + tax_form_name + " - 2020.pdf")
-
-        
-# subdirectory_for_pdfs = 'tax_form_pdfs'
-
-# if not os.path.exists(subdirectory_for_pdfs):
-#     os.mkdir(subdirectory_for_pdfs)
-#     print("Directory " , subdirectory_for_pdfs ,  " Created ")
-# else:    
-#     print("Directory ", subdirectory_for_pdfs ,  " already exists")
-
-# path = subdirectory_for_pdfs
-# file_name = 'sammy.txt'
-
-# complete_name = os.path.join(path, file_name)
-
-# create_file = open(complete_name, 'w')
-# create_file.write('please add to the right directory')
-# create_file.close()
 
 
 
