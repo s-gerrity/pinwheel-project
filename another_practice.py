@@ -3,25 +3,13 @@ import os
 from bs4 import BeautifulSoup
 
 
-#pseudocode
-# make a list of the years' links needed for pdf dl's
-# if pdf found, add link to a list
-# if list not empty - need to handle this case somehow
-# make a directory for the pdfs to be saved in
-# open a file in the new directory
-# copy pdf wb into new file
-# name file form/form - year.pdf 
-# pop year off the list
-# if list empty when page search ends
-# check if there is another page to search
-# if not, leave and end
-# if there is, search page for years in list
-# if no more pages, return output reporting this form - year not available
-
-
+# tax_form_name = input(">> What is the name of the tax form you'd like to download? ")
+# start_year = input(">> What starting year would you like to download: ")
+# end_year = input(">> What year would you like your search to end: ")
 tax_form_name = "Form W-2"
-start_year = 1954
-end_year = 1956
+start_year = 1933
+end_year = 1934
+
 
 
 def get_url(tax_form_name):
@@ -32,6 +20,15 @@ def get_url(tax_form_name):
     return url
 
 
+def make_list_of_years(start_year, end_year):
+    list_of_form_years = []
+
+    for i in range(int(start_year), int(end_year)+1):
+        list_of_form_years.append(i)
+
+    return list_of_form_years
+
+
 def scrape_page(url):
     page = requests.get(url)
 
@@ -40,50 +37,26 @@ def scrape_page(url):
     return soup
 
 
-def get_pdf_links(soup, start_year, end_year):
-    list_of_pdf_links = []
-    list_of_form_years = []
+def get_pdf_links(soup, list_of_pdf_links, list_of_form_years):
+    # print(list_of_form_years, "YEARS", list_of_pdf_links, "LINKS")
 
     links = soup.find_all('a')
-    for i in range(start_year, end_year+1):
-        list_of_form_years.append(i)
-    
+
+
+    for i in range(int(start_year), int(end_year)+1):
+        # print(i)
+        # print()
         for link in links:
             link_url = link["href"]
+
             if 'pdf' in link_url and str(i) in link_url:
+                # print("YES", link_url)
                 list_of_pdf_links.append(link_url)
+                # print(list_of_pdf_links, "list_of_pdf_links YES")
+            # else:
+            #     print("expected link not found")
 
     return list_of_pdf_links, list_of_form_years
-
-def make_subdirectory_for_pdfs():
-    subdirectory_for_pdfs = tax_form_name
-
-    if not os.path.exists(subdirectory_for_pdfs):
-        os.mkdir(subdirectory_for_pdfs)
-        return subdirectory_for_pdfs
-    else:    
-        return subdirectory_for_pdfs
-
-
-def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years):
-    
-    for i in range(len(list_of_pdf_years)):
-        path = subdirectory_for_pdfs
-        file_name = tax_form_name + " - " + str(list_of_pdf_years[i]) +".pdf"
-        print(file_name)
-        print()
-        complete_name = os.path.join(path, file_name)
-        print(complete_name)
-        print()
-        url = list_of_pdf_links[i]
-        r = requests.get(url) 
-        print(url)
-        print()
-        with open(complete_name, 'wb') as f:
-            f.write(r.content)
-            f.close()
-
-    print("completed downloads")
 
 
 def check_if_next_page(soup):
@@ -103,28 +76,82 @@ def check_if_next_page(soup):
     return None
 
 
-def download_pdfs_and_save(tax_form_name):
-    url = get_url(tax_form_name)
+def make_subdirectory_for_pdfs():
+    subdirectory_for_pdfs = tax_form_name
+
+    if not os.path.exists(subdirectory_for_pdfs):
+        os.mkdir(subdirectory_for_pdfs)
+        return subdirectory_for_pdfs
+
+    else:    
+        return subdirectory_for_pdfs
+
+
+def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years):
+
+    if list_of_pdf_links == []:
+        return "no links found"
     
-    list_of_forms = get_downloads(url, start_year, end_year)
+    for i in range(len(list_of_pdf_years)):
+        url = list_of_pdf_links[i]
+        path = subdirectory_for_pdfs
+        file_name = tax_form_name + " - " + str(url[-8:])
+        # print(file_name, "**********")
+        complete_name = os.path.join(path, file_name)
+        
+        # r = requests.get(url) 
+        # print(url)
+        # print()
+        # with open(complete_name, 'wb') as f:
+        #     f.write(r.content)
+        #     f.close()
 
-    return list_of_forms
+    return "Downloads completed"
 
 
-def get_downloads(url, start_year, end_year):
+
+
+
+def get_downloads(url, list_of_pdf_links, list_of_form_years):
 
     soup = scrape_page(url)
-    list_of_forms = get_pdf_links(soup, start_year, end_year)
+    list_of_forms = get_pdf_links(soup, list_of_pdf_links, list_of_form_years)
+    # print(list_of_forms)
     list_of_pdf_links = list_of_forms[0]
     list_of_pdf_years = list_of_forms[1]
 
     # check if pagination is necessary
     if len(list_of_pdf_years) != len(list_of_pdf_links):
+        # print(list_of_forms, "lens not")
         if_next = check_if_next_page(soup)
-        get_downloads(if_next, start_year, end_year)
+        # print(if_next, "ALOHA")
+        # print()
+        # print(list_of_forms)
+
+        if if_next == None:
+            subdirectory_for_pdfs = make_subdirectory_for_pdfs()
+            done = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_form_years)
+
+            return done
+
+        else:
+            done = get_downloads(if_next, list_of_pdf_links, list_of_form_years)
+    
     else:
         subdirectory_for_pdfs = make_subdirectory_for_pdfs()
         done = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years)
+        # print("len is equal and done", done)
+        return done
 
+def download_pdfs_and_save():
+    url = get_url(tax_form_name)
 
-print(download_pdfs_and_save(tax_form_name))
+    list_of_form_years = make_list_of_years(start_year, end_year)
+
+    list_of_pdf_links = []
+    
+    how_it_ends = get_downloads(url, list_of_pdf_links, list_of_form_years)
+
+    return how_it_ends
+    
+print(download_pdfs_and_save())
