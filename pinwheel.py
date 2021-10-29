@@ -38,23 +38,25 @@ def area_to_search_form_data(soup):
 
 
 def collect_tax_form_details(dict_form_data, row_form_data, form_to_check):
-    """We find each form with the name that matches the form we're searching. """
+    """We find each form with the name that matches the form we're searching. Add the
+    'product number' form name and form title to a dictionary."""
 
     for form in row_form_data:
-        # The site calls the form name the "product number"
+        # The IRS site refers to the form name as the "product number"
         product_number_form_name = form.find("td", class_="LeftCellSpacer")
 
+        # Check if the row is the form we are looking for and add it's details to our
+        # dictionary data set
         if product_number_form_name.text.strip() == form_to_check:
             dict_form_data['Product Number'] = product_number_form_name.text.strip()
             form_title = form.find("td", class_="MiddleCellSpacer")
-
-            # collect applicable years in a list to sort the min and max later
             dict_form_data['Title'] = form_title.text.strip()
 
     return dict_form_data
 
 
 def collect_tax_years(all_form_years, row_form_data, form_to_check):
+    """All years the form is available are added to a list."""
 
     for form in row_form_data:
             product_number_form_name = form.find("td", class_="LeftCellSpacer")
@@ -63,11 +65,14 @@ def collect_tax_years(all_form_years, row_form_data, form_to_check):
                 form_year = form.find("td", class_="EndCellSpacer")
                 all_form_years['Years'].append(form_year.text.strip())
 
-
     return all_form_years
 
 
 def check_if_next_page(soup):
+    """Check the website to see if there are more pages with forms to search. More pages
+    available is noted by 'Next'. Return None if there are no additional pages. If there
+    are more pages, return the URL for the next page."""
+
     url = "https://apps.irs.gov"
 
     results = soup.find("th", class_="NumPageViewed")
@@ -85,14 +90,16 @@ def check_if_next_page(soup):
 
 
 def get_min_max_years(all_form_years, dict_form_data):
+    """Find highest and lowest years in the Years list and add to our dictionary."""
 
     dict_form_data['Minimum Year'] = min(all_form_years['Years'])
-    dict_form_data['Maximum Year'] = max(all_form_years["Years"])
+    dict_form_data['Maximum Year'] = max(all_form_years['Years'])
 
     return dict_form_data
 
 
 def append_to_main_list_as_json(dict_with_form_data, tax_form_info):
+    """Add our finalized dictionary to the output list."""
 
     tax_form_info.append(dict_with_form_data)
 
@@ -110,17 +117,25 @@ def get_data(dict_form_data, all_form_years, form_to_check, tax_form_info, url):
     row_form_data = area_to_search_form_data(soup)
     dict_form_data = collect_tax_form_details(dict_form_data, row_form_data, form_to_check)
     all_form_years = collect_tax_years(all_form_years, row_form_data, form_to_check)
+    
+    # Check for pagination. Returns None if there are no more pages to find form data.
     if_next = check_if_next_page(soup)
 
+    # Recursively search more pages and collect form data
     if if_next != None:
         return get_data(dict_form_data, all_form_years, form_to_check, tax_form_info, if_next)
-    else:
-        return finalize_data(all_form_years, dict_form_data, tax_form_info)
+    
+    return finalize_data(all_form_years, dict_form_data, tax_form_info)
             
 
 def finalize_data(all_form_years, dict_form_data, tax_form_info):
+    """Add maximum year and minimum year to the dictionary. Insert the dictionary into
+    a list."""
+
     dict_with_form_data = get_min_max_years(all_form_years, dict_form_data)
     tax_form_info = append_to_main_list_as_json(dict_with_form_data, tax_form_info)
+
+    return tax_form_info
 
 
 def get_tax_info(tax_forms_to_check):
@@ -128,6 +143,7 @@ def get_tax_info(tax_forms_to_check):
     returns a JSON with the form name, title, minimum and maximum years the forms
     are available."""
 
+    # This list will hold our JSON output when finished
     tax_form_info = []
 
     for form_to_check in tax_forms_to_check:
@@ -137,7 +153,8 @@ def get_tax_info(tax_forms_to_check):
         url = make_url(form_to_check)
 
         get_data(dict_form_data, all_form_years, form_to_check, tax_form_info, url)
-        
+
+    # Return list with a dictionary to list with JSON    
     return json.dumps(tax_form_info, indent = 4)
 
 
