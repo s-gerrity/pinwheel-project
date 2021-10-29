@@ -25,10 +25,6 @@ def make_list_of_years(start_year, end_year):
 
     for i in range(int(start_year), int(end_year)+1):
         list_of_form_years.append(i)
-    print()
-    print(list_of_form_years)
-    print()
-    print(start_year, end_year)
 
     return list_of_form_years
 
@@ -43,23 +39,35 @@ def scrape_page(url):
     return soup
 
 
-def get_pdf_links(soup, list_of_pdf_links, start_year, end_year):
-    """For each year a donwnload is needed, find the link for its PDF on the
-    web page and save it to a list."""
+def get_only_pdf_links(soup):
+    """Adds only links from page that go to a PDF."""
 
     links = soup.find_all('a')
+    only_pdf_links = []
+
+    for link in links:
+        link_url = link["href"]
+
+        # Looks for 'pdf' and the year as string in each url
+        if 'pdf' in link_url:
+            only_pdf_links.append(link_url)
+
+    return only_pdf_links
 
 
-    for i in range(int(start_year), int(end_year)+1):
+def get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links):
+    """Check each PDF for the year. If it's a year we are requesting, add
+    it to our list."""
 
-        for link in links:
-            link_url = link["href"]
+    for link in only_pdf_links:
 
-            # Looks for 'pdf' and the year as string in each url
-            if 'pdf' in link_url and str(i) in link_url:
-                list_of_pdf_links.append(link_url)
+        for year in list_of_form_years:
 
-    return list_of_pdf_links
+            if str(year) in link:
+                list_of_pdf_links.append(link)
+                list_of_form_years.remove(year)
+
+    return list_of_pdf_links 
 
 
 def check_if_next_page(soup):
@@ -90,56 +98,53 @@ def make_subdirectory_for_pdfs():
         return subdirectory_for_pdfs
 
 
-def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years):
+def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
 
     if list_of_pdf_links == []:
-        # return "There are no " + tax_form_name + "PDF's for the years: " + str(list_of_pdf_years)
-        # print("There are no " + tax_form_name + " PDF's for the years: " + str(list_of_pdf_years))
-        # return "There are no " + tax_form_name + "PDF's for the years: " + str(list_of_pdf_years)
         return 'There are no PDF downloads for those years'
-        # return list_of_pdf_links
 
-    for i in range(len(list_of_pdf_links)):
-        url = list_of_pdf_links[i]
-        path = subdirectory_for_pdfs
-        file_name = tax_form_name + " - " + str(url[-8:])
-        # print(file_name, "**********")
-        complete_name = os.path.join(path, file_name)
-        
-        # r = requests.get(url) 
-        # print(url)
-        # print()
-        # with open(complete_name, 'wb') as f:
-        #     f.write(r.content)
-        #     f.close()
+    else:
 
-    return 'Downloads completed'
+        for i in range(len(list_of_pdf_links)):
+            url = list_of_pdf_links[i]
+            path = subdirectory_for_pdfs
+            file_name = tax_form_name + " - " + str(url[-8:])
+            complete_name = os.path.join(path, file_name)
+            r = requests.get(url) 
+
+            with open(complete_name, 'wb') as f:
+                f.write(r.content)
+                f.close()
+
+        return 'Downloads completed'
 
 
 def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year):
     """Perform all actions to download the PDF"s."""
 
     soup = scrape_page(url)
-    list_of_pdf_links = get_pdf_links(soup, list_of_pdf_links, start_year, end_year)
+    only_pdf_links = get_only_pdf_links(soup)
+    list_of_pdf_links = get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links)
 
     # Pagination is necessary if there are years that haven't had links for PDF's located yet
-    if len(list_of_form_years) != len(list_of_pdf_links):
+    if len(list_of_form_years) != 0:
         # If links needed, see if there is another page to search
         if_next = check_if_next_page(soup)
 
         # If there are no more pages to check 'if_next' will be None and proceed to downloading
         if if_next == None:
+
             subdirectory_for_pdfs = make_subdirectory_for_pdfs()
-            formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_form_years)
+            formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
 
             return formatted_download_response
 
         else:
-            get_downloads(if_next, list_of_pdf_links, list_of_form_years, start_year, end_year)
+            return get_downloads(if_next, list_of_pdf_links, list_of_form_years, start_year, end_year)
     
     else:
         subdirectory_for_pdfs = make_subdirectory_for_pdfs()
-        formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_form_years)
+        formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
 
         return formatted_download_response
 
@@ -156,7 +161,7 @@ def download_pdfs_and_save(tax_form_name, start_year, end_year):
     list_of_pdf_links = []
     
     download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year)
-    print(download_response, "how it ends")
+
     return download_response
     
 
@@ -171,6 +176,7 @@ def run_test(testValue, expectedResult, description):
     else:
         print('    ❌ Test failed!')
 
+
 tax_form_name = "Form W-2"
 not_found_start_year = 1935
 not_found_end_year = 1937
@@ -180,29 +186,9 @@ found_page_two_start_year = 2012
 found_page_two_end_year = 2016
 beginning_available_end_year = 1954
 
+
 run_test(download_pdfs_and_save(tax_form_name, not_found_start_year, not_found_end_year), 'There are no PDF downloads for those years', 'Input years are neither available for the form')
 run_test(download_pdfs_and_save(tax_form_name, found_start_year, found_end_year), 'Downloads completed', 'Input years both available and on one page')
 run_test(download_pdfs_and_save(tax_form_name, found_page_two_start_year, found_end_year), 'Downloads completed', 'Start year on diff page, all pdf"s available')
 run_test(download_pdfs_and_save(tax_form_name, found_page_two_start_year, found_page_two_end_year), 'Downloads completed', 'Start and end years both available and on page two')
 run_test(download_pdfs_and_save(tax_form_name, not_found_start_year, beginning_available_end_year), 'Downloads completed', 'Only one year available')
-
-
-# if len is off and next is not none
-# search next page
-
-# if len is off and next is none and download needed
-# get downloads
-# report that only some were available
-
-
-
-# if len is equal and fields are empty
-# check for next
-# if no next
-# report none were available
-
-# if len is equal
-# donwload
-# report completed
-
-# issue is when searching goes beyond first page
