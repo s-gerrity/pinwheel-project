@@ -99,7 +99,7 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, list_of_pdf_years):
         return 'There are no PDF downloads for those years'
         # return list_of_pdf_links
 
-    for i in range(len(list_of_pdf_years)):
+    for i in range(len(list_of_pdf_links)):
         url = list_of_pdf_links[i]
         path = subdirectory_for_pdfs
         file_name = tax_form_name + " - " + str(url[-8:])
@@ -204,3 +204,5 @@ run_test(download_pdfs_and_save(tax_form_name, not_found_start_year, beginning_a
 # if len is equal
 # donwload
 # report completed
+
+# issue is when searching goes beyond first page
