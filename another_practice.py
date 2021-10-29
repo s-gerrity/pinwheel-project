@@ -57,7 +57,8 @@ def get_only_pdf_links(soup):
 
 def get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links):
     """Check each PDF for the year. If it's a year we are requesting, add
-    it to our list."""
+    it to our list. Remove years found from original to track how many to
+    keep searching for."""
 
     for link in only_pdf_links:
 
@@ -71,6 +72,10 @@ def get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links):
 
 
 def check_if_next_page(soup):
+    """Check if there are other web pages the forms' PDF's could be available to 
+    download from. The links are identified by 'Next'. We return None when there are
+    no additional pages to search."""
+
     url = "https://apps.irs.gov"
 
     results = soup.find("th", class_="NumPageViewed")
@@ -88,6 +93,9 @@ def check_if_next_page(soup):
 
 
 def make_subdirectory_for_pdfs():
+    """Make one subdirectory for each form type to save the PDF's inside. Name 
+    it after the form."""
+
     subdirectory_for_pdfs = tax_form_name
 
     if not os.path.exists(subdirectory_for_pdfs):
@@ -99,15 +107,17 @@ def make_subdirectory_for_pdfs():
 
 
 def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
+    """Save any PDF's available inside the subdirectory."""
 
     if list_of_pdf_links == []:
         return 'There are no PDF downloads for those years'
 
     else:
-
         for i in range(len(list_of_pdf_links)):
             url = list_of_pdf_links[i]
             path = subdirectory_for_pdfs
+
+            # Naming convention example: Form W-2/Form W-2 - 2020.pdf
             file_name = tax_form_name + " - " + str(url[-8:])
             complete_name = os.path.join(path, file_name)
             r = requests.get(url) 
@@ -120,28 +130,33 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
 
 
 def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year):
-    """Perform all actions to download the PDF"s."""
+    """Perform all actions to find any PDF"s and download them to a subdirectory."""
 
+    # Get any PDF links from the webpage
     soup = scrape_page(url)
     only_pdf_links = get_only_pdf_links(soup)
     list_of_pdf_links = get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links)
 
     # Pagination is necessary if there are years that haven't had links for PDF's located yet
     if len(list_of_form_years) != 0:
-        # If links needed, see if there is another page to search
+
+        # See if there is another page to search for remaining links needed
         if_next = check_if_next_page(soup)
 
-        # If there are no more pages to check 'if_next' will be None and proceed to downloading
+        # None is if there are no more pages available to check and proceed downloading
         if if_next == None:
 
+            # Download PDF's
             subdirectory_for_pdfs = make_subdirectory_for_pdfs()
             formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
 
             return formatted_download_response
 
+        # Search pages for more links
         else:
             return get_downloads(if_next, list_of_pdf_links, list_of_form_years, start_year, end_year)
     
+    # Download PDF's
     else:
         subdirectory_for_pdfs = make_subdirectory_for_pdfs()
         formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
