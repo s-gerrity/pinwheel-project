@@ -3,9 +3,9 @@ import os
 from bs4 import BeautifulSoup
 
 
-# tax_form_name = input(">> What is the name of the tax form you'd like to download? ")
-# start_year = input(">> What starting year would you like to download: ")
-# end_year = input(">> What year would you like your search to end: ")
+tax_form_name = input(">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ")
+start_year = input(">> What year would you like the downloads to start at? ")
+end_year = input(">> Up until which year should be included? ")
 
 
 def get_url(tax_form_name):
@@ -192,7 +192,7 @@ def run_test(testValue, expectedResult, description):
         print('    ❌ Test failed!')
 
 
-tax_form_name = "Form W-2"
+sample_tax_form_name = "Form W-2"
 not_found_start_year = 1935
 not_found_end_year = 1937
 found_start_year = 2017
@@ -202,8 +202,12 @@ found_page_two_end_year = 2016
 beginning_available_end_year = 1954
 
 
-run_test(download_pdfs_and_save(tax_form_name, not_found_start_year, not_found_end_year), 'There are no PDF downloads for those years', 'Input years are neither available for the form')
-run_test(download_pdfs_and_save(tax_form_name, found_start_year, found_end_year), 'Downloads completed', 'Input years both available and on one page')
-run_test(download_pdfs_and_save(tax_form_name, found_page_two_start_year, found_end_year), 'Downloads completed', 'Start year on diff page, all pdf"s available')
-run_test(download_pdfs_and_save(tax_form_name, found_page_two_start_year, found_page_two_end_year), 'Downloads completed', 'Start and end years both available and on page two')
-run_test(download_pdfs_and_save(tax_form_name, not_found_start_year, beginning_available_end_year), 'Downloads completed', 'Only one year available')
+# run_test(download_pdfs_and_save(sample_tax_form_name, not_found_start_year, not_found_end_year), 'There are no PDF downloads for those years', 'Input years are neither available for the form')
+# run_test(download_pdfs_and_save(sample_tax_form_name, found_start_year, found_end_year), 'Downloads completed', 'Input years both available and on one page')
+# run_test(download_pdfs_and_save(sample_tax_form_name, found_page_two_start_year, found_end_year), 'Downloads completed', 'Start year on diff page, all pdf"s available')
+# run_test(download_pdfs_and_save(sample_tax_form_name, found_page_two_start_year, found_page_two_end_year), 'Downloads completed', 'Start and end years both available and on page two')
+# run_test(download_pdfs_and_save(sample_tax_form_name, not_found_start_year, beginning_available_end_year), 'Downloads completed', 'Only one year available')
+
+
+if __name__ == '__main__':
+    print(download_pdfs_and_save(tax_form_name, start_year, end_year))

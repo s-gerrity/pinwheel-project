@@ -155,7 +155,8 @@ def get_tax_info(tax_forms_to_check):
         get_data(dict_form_data, all_form_years, form_to_check, tax_form_info, url)
 
     # Return list with a dictionary to list with JSON    
-    return json.dumps(tax_form_info, indent = 4)
+    return print(json.dumps(tax_form_info, indent = 4))
+    
 
-
-print(get_tax_info(tax_forms_to_check))
+if __name__ == '__main__':
+    get_tax_info(tax_forms_to_check)
