@@ -72,7 +72,7 @@ def get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links):
 
 
 def check_if_next_page(soup):
-    """Check if there are other web pages the forms' PDF's could be available to 
+    """Check if there are other web pages the forms' PDFs could be available to 
     download from. The links are identified by 'Next'. We return None when there are
     no additional pages to search."""
 
@@ -107,7 +107,7 @@ def make_subdirectory_for_pdfs():
 
 
 def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
-    """Save any PDF's available inside the subdirectory."""
+    """Save any PDFs available inside the subdirectory."""
 
     if list_of_pdf_links == []:
         return 'There are no PDF downloads for those years'
@@ -132,31 +132,31 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
 def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year):
     """Perform all actions to find any PDF"s and download them to a subdirectory."""
 
-    # Get any PDF links from the webpage
+    # Collect any PDF links from the webpage
     soup = scrape_page(url)
     only_pdf_links = get_only_pdf_links(soup)
     list_of_pdf_links = get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links)
 
-    # Pagination is necessary if there are years that haven't had links for PDF's located yet
+    # Not 0 if there are still years that need forms downloaded
     if len(list_of_form_years) != 0:
 
-        # See if there is another page to search for remaining links needed
+        # Check for pagination
         if_next = check_if_next_page(soup)
 
-        # None is if there are no more pages available to check and proceed downloading
+        # None is if there are no more pages available to check
         if if_next == None:
 
-            # Download PDF's
+            # Download PDFs
             subdirectory_for_pdfs = make_subdirectory_for_pdfs()
             formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
 
             return formatted_download_response
 
-        # Search pages for more links
+        # Recursively search pages for more links
         else:
             return get_downloads(if_next, list_of_pdf_links, list_of_form_years, start_year, end_year)
     
-    # Download PDF's
+    # Download PDFs
     else:
         subdirectory_for_pdfs = make_subdirectory_for_pdfs()
         formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
@@ -166,13 +166,13 @@ def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_ye
 
 def download_pdfs_and_save(tax_form_name, start_year, end_year):
     """Puts together initial URL for web scraping, list of years to download tax
-    forms, and calls function to download the PDF's."""
+    forms, and calls function to download the PDFs."""
 
     url = get_url(tax_form_name)
 
     list_of_form_years = make_list_of_years(start_year, end_year)
 
-    # this link will collect all PDF's to be downloaded
+    # this link will collect all PDFs to be downloaded
     list_of_pdf_links = []
     
     download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year)
