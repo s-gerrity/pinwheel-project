@@ -29,7 +29,7 @@ def area_to_search_form_data(soup):
     """Locate the area in the html that has the tax form data. It is positioned in a table with
     rows labeled 'even" and 'odd'."""
 
-    # this creats an "iterable" to loop through all results
+    # An iterable we'll use later to loop through each forms data
     results = soup.find("div", class_="picklistTable")
 
     row_form_data = results.find_all("tr", class_=["even", "odd"])
@@ -38,13 +38,14 @@ def area_to_search_form_data(soup):
 
 
 def collect_tax_form_details(dict_form_data, row_form_data, form_to_check):
-    
+    """We find each form with the name that matches the form we're searching. """
 
     for form in row_form_data:
-        product_number = form.find("td", class_="LeftCellSpacer")
+        # The site calls the form name the "product number"
+        product_number_form_name = form.find("td", class_="LeftCellSpacer")
 
-        if product_number.text.strip() == form_to_check:
-            dict_form_data['Product Number'] = product_number.text.strip()
+        if product_number_form_name.text.strip() == form_to_check:
+            dict_form_data['Product Number'] = product_number_form_name.text.strip()
             form_title = form.find("td", class_="MiddleCellSpacer")
 
             # collect applicable years in a list to sort the min and max later
@@ -56,9 +57,9 @@ def collect_tax_form_details(dict_form_data, row_form_data, form_to_check):
 def collect_tax_years(all_form_years, row_form_data, form_to_check):
 
     for form in row_form_data:
-            product_number = form.find("td", class_="LeftCellSpacer")
+            product_number_form_name = form.find("td", class_="LeftCellSpacer")
 
-            if product_number.text.strip() == form_to_check:
+            if product_number_form_name.text.strip() == form_to_check:
                 form_year = form.find("td", class_="EndCellSpacer")
                 all_form_years['Years'].append(form_year.text.strip())
 
@@ -83,12 +84,12 @@ def check_if_next_page(soup):
     return None
 
 
-def get_min_max_years(all_form_years, dict_for_data):
+def get_min_max_years(all_form_years, dict_form_data):
 
-    dict_for_data['Minimum Year'] = min(all_form_years['Years'])
-    dict_for_data['Maximum Year'] = max(all_form_years["Years"])
+    dict_form_data['Minimum Year'] = min(all_form_years['Years'])
+    dict_form_data['Maximum Year'] = max(all_form_years["Years"])
 
-    return dict_for_data
+    return dict_form_data
 
 
 def append_to_main_list_as_json(dict_with_form_data, tax_form_info):
