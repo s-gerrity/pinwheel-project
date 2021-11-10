@@ -2,8 +2,10 @@ import requests
 import os
 from bs4 import BeautifulSoup
 
-# TODO: Move testing code into a separate sheet or within a separate function
-# TODO: Make input or testing work without making code modification
+# TODO: Move testing code into a separate sheet or within a separate function (currently
+# testing has been moved to separate file but cannot be called to add input yet)
+# TODO: Make input or testing work without making code modification (currently
+# performs correctly if calling this file and without any misspelling inputs)
 
 
 def get_user_input():
