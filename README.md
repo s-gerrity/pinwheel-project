@@ -17,6 +17,6 @@
 ###### 3. Up until which year should be included?
 
 #### Approaches & Trade Offs
-###### I'm pleased the outputs are correct. With more time I would have added for the **form data** some testing with handling for edge cases especially for user input like misspelling and empty lists. For the **form PDFs** I would have added more tests in general with more error and completion messaging to the user. 
+###### I'm pleased the outputs are correct. With more time, for the **form data** I would have added testing with handling for edge cases, especially for user input like misspelling and empty lists. For the **form PDFs** I would have added more tests in general with better detailed error and completion messaging to the user. 
 
 #### Thank you so much for your time, I had a lot of fun working on this project!

@@ -3,8 +3,11 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
+# TODO: JSON needs to take input 
+# TODO: JSON needs to take input without requiring code modification for input
+# TODO: Report error communication instead of passing error unhandled exceptions
 
-tax_forms_to_check = ["Form W-2", "Form 1095-C"]
+tax_forms_to_check = ["Form W-2"]
 
 
 def make_url(form_to_check):
@@ -116,7 +119,10 @@ def get_data(dict_form_data, all_form_years, form_to_check, tax_form_info, url):
     soup = scrape_page(url)
     row_form_data = area_to_search_form_data(soup)
     dict_form_data = collect_tax_form_details(dict_form_data, row_form_data, form_to_check)
+    print(dict_form_data)
+    print()
     all_form_years = collect_tax_years(all_form_years, row_form_data, form_to_check)
+    print(all_form_years)
     
     # Check for pagination. Returns None if there are no more pages to find form data.
     if_next = check_if_next_page(soup)
