@@ -5,9 +5,12 @@ from bs4 import BeautifulSoup
 # TODO: Move testing code into a separate sheet or within a separate function
 # TODO: Make input or testing work without making code modification
 
-# tax_form_name = input(">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ")
-# start_year = input(">> What year would you like the downloads to start at? ")
-# end_year = input(">> Up until which year should be included? ")
+
+def get_user_input():
+    tax_form_name = input(">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ")
+    start_year = input(">> What year would you like the downloads to start at? ")
+    end_year = input(">> Up until which year should be included? ")
+    return tax_form_name, start_year, end_year
 
 
 def get_url(tax_form_name):
@@ -94,7 +97,7 @@ def check_if_next_page(soup):
     return None
 
 
-def make_subdirectory_for_pdfs():
+def make_subdirectory_for_pdfs(sample_tax_form_name):
     """Make one subdirectory for each form type to save the PDF's inside. Name 
     it after the form."""
 
@@ -108,7 +111,7 @@ def make_subdirectory_for_pdfs():
         return subdirectory_for_pdfs
 
 
-def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
+def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, sample_tax_form_name):
     """Save any PDFs available inside the subdirectory."""
 
     if list_of_pdf_links == []:
@@ -131,7 +134,7 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links):
         return 'Downloads completed'
 
 
-def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year):
+def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name):
     """Perform all actions to find any PDF"s and download them to a subdirectory."""
 
     # Collect any PDF links from the webpage
@@ -149,26 +152,31 @@ def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_ye
         if if_next == None:
 
             # Download PDFs
-            subdirectory_for_pdfs = make_subdirectory_for_pdfs()
-            formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
+            subdirectory_for_pdfs = make_subdirectory_for_pdfs(sample_tax_form_name)
+            formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, sample_tax_form_name)
 
             return formatted_download_response
 
         # Recursively search pages for more links
         else:
-            return get_downloads(if_next, list_of_pdf_links, list_of_form_years, start_year, end_year)
+            return get_downloads(if_next, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name)
     
     # Download PDFs
     else:
-        subdirectory_for_pdfs = make_subdirectory_for_pdfs()
-        formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links)
+        subdirectory_for_pdfs = make_subdirectory_for_pdfs(sample_tax_form_name)
+        formatted_download_response = save_pdf(subdirectory_for_pdfs, list_of_pdf_links, sample_tax_form_name)
 
         return formatted_download_response
 
 
-def download_pdfs_and_save(sample_tax_form_name, start_year, end_year):
+def download_pdfs_and_save():
     """Puts together initial URL for web scraping, list of years to download tax
     forms, and calls function to download the PDFs."""
+
+    user_input = get_user_input()
+    sample_tax_form_name = user_input[0]
+    start_year = user_input[1]
+    end_year = user_input[2]
 
     url = get_url(sample_tax_form_name)
 
@@ -177,39 +185,10 @@ def download_pdfs_and_save(sample_tax_form_name, start_year, end_year):
     # this link will collect all PDFs to be downloaded
     list_of_pdf_links = []
     
-    download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year)
+    download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name)
 
     return download_response
     
 
-
-
-################ TESTS ##########
-
-def run_test(testValue, expectedResult, description):
-    print(description)
-    if testValue == expectedResult:
-        print('    ✅ Test passed')
-    else:
-        print('    ❌ Test failed!')
-
-
-sample_tax_form_name = "Form W-2"
-not_found_start_year = 1935
-not_found_end_year = 1937
-found_start_year = 2017
-found_end_year = 2020
-found_page_two_start_year = 2012
-found_page_two_end_year = 2016
-beginning_available_end_year = 1954
-
-
-run_test(download_pdfs_and_save(sample_tax_form_name, not_found_start_year, not_found_end_year), 'There are no PDF downloads for those years', 'Input years are neither available for the form')
-run_test(download_pdfs_and_save(sample_tax_form_name, found_start_year, found_end_year), 'Downloads completed', 'Input years both available and on one page')
-run_test(download_pdfs_and_save(sample_tax_form_name, found_page_two_start_year, found_end_year), 'Downloads completed', 'Start year on diff page, all pdf"s available')
-run_test(download_pdfs_and_save(sample_tax_form_name, found_page_two_start_year, found_page_two_end_year), 'Downloads completed', 'Start and end years both available and on page two')
-run_test(download_pdfs_and_save(sample_tax_form_name, not_found_start_year, beginning_available_end_year), 'Downloads completed', 'Only one year available')
-
-
-# if __name__ == '__main__':
-    # print(download_pdfs_and_save(tax_form_name, start_year, end_year))
+if __name__ == '__main__':
+    print(download_pdfs_and_save())
