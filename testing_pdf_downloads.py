@@ -4,7 +4,11 @@ from test_base import set_keyboard_input, get_display_output
 
 ################ TESTS ##########
 
-sample_tax_form_name = "Form W-2"
+valid_form_formatting = "Form W-2"
+lowercase_form_input = "form w-2"
+uppercase_form_input = "FORM W-2"
+no_dash_form_input = "Form W2"
+misspelled_form_input = "fomr w-2"
 not_found_start_year = 1935
 not_found_end_year = 1937
 found_start_year = 2017
@@ -44,9 +48,11 @@ beginning_available_end_year = 1954
 #                       'Hi sink! You like the nail.']
 
         
-def test_download_complete():
+def test_valid_years_and_formatting():
+    """Test checks for valid years and valid spelling and formatting for
+    form name."""
 
-    set_keyboard_input([sample_tax_form_name, found_start_year, found_end_year])
+    set_keyboard_input([valid_form_formatting, found_start_year, found_end_year])
 
     print(download_form_pdfs.download_pdfs_and_save())
 
@@ -56,23 +62,111 @@ def test_download_complete():
                       ">> What year would you like the downloads to start at? ",
                       ">> Up until which year should be included? ",
                       "Downloads completed"]
-                      
 
 
-if __name__ == '__main__':
+def test_next_page_year_grouping():
+    """Test checks for valid years that start on one page and require pagination
+    to collect all PDFs. Valid spelling and formatting for form name."""
+
+    set_keyboard_input([valid_form_formatting, found_start_year, found_end_year])
+
+    print(download_form_pdfs.download_pdfs_and_save())
+
+    output = get_display_output()
+
+    assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+                      ">> What year would you like the downloads to start at? ",
+                      ">> Up until which year should be included? ",
+                      "Downloads completed"]
+
+
+def test_not_all_years_available():
+    """Checks for years where only some have PDFs to download. Valid spelling and formatting for form name."""
+
+    set_keyboard_input([valid_form_formatting, not_found_start_year, found_end_year])
+
+    print(download_form_pdfs.download_pdfs_and_save())
+
+    output = get_display_output()
+
+    assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+                      ">> What year would you like the downloads to start at? ",
+                      ">> Up until which year should be included? ",
+                      "Downloads completed"]
+
+                    
+def test_lowercase_form_input():
+    """Form input is all lowercase. URL function will correct to lowercase as well. Valid
+    years to download."""
+
+    set_keyboard_input([lowercase_form_input, found_start_year, found_end_year])
+
+    print(download_form_pdfs.download_pdfs_and_save())
+
+    output = get_display_output()
+
+    assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+                      ">> What year would you like the downloads to start at? ",
+                      ">> Up until which year should be included? ",
+                      "Downloads completed"]
+
+
+def test_uppercase_form_input():
+    """Form input is all lowercase. URL function will correct to lowercase as well. Valid
+    years to download."""
+
+    set_keyboard_input([uppercase_form_input, found_start_year, found_end_year])
+
+    print(download_form_pdfs.download_pdfs_and_save())
+
+    output = get_display_output()
+
+    assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+                      ">> What year would you like the downloads to start at? ",
+                      ">> Up until which year should be included? ",
+                      "Downloads completed"]
+
+
+def test_missing_dash_form_input():
+    """Form input is all lowercase. URL function will correct to lowercase as well. Valid
+    years to download."""
+
+    set_keyboard_input([no_dash_form_input, found_start_year, found_end_year])
+
+    print(download_form_pdfs.download_pdfs_and_save())
+
+    output = get_display_output()
+
+    assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+                      ">> What year would you like the downloads to start at? ",
+                      ">> Up until which year should be included? ",
+                      "Downloads completed"]
+
+
+def test_misspelled_form_input():
+    """Form input is all lowercase. URL function will correct to lowercase as well. Valid
+    years to download."""
+
+    set_keyboard_input([misspelled_form_input, found_start_year, found_end_year])
+
+    print(download_form_pdfs.download_pdfs_and_save())
+
+    output = get_display_output()
+
+    assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+                      ">> What year would you like the downloads to start at? ",
+                      ">> Up until which year should be included? ",
+                      "Downloads completed"]
+
+
+
+
+
+
+
+# if __name__ == '__main__':
     # test_1()
     # test_2()
-    test_download_complete()
-
-
-# def run_test(testValue, expectedResult, description):
-#     print(description)
-#     if testValue == expectedResult:
-#         print('    ✅ Test passed')
-#     else:
-#         print('    ❌ Test failed!')
-
-
 
 
 

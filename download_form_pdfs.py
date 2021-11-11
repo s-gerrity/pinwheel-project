@@ -21,7 +21,8 @@ def get_url(tax_form_name):
 
     form_name = tax_form_name.lower()
 
-    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_name + "&criteria=formNumber&resultsPerPage=25&isDescending=false"
+    # Saved here with 200 items per page. Manual site checking defaults to 25 per. 
+    url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_name + "&criteria=formNumber&resultsPerPage=200&isDescending=false"
     
     return url
 
@@ -194,5 +195,5 @@ def download_pdfs_and_save():
 
 
 
-# if __name__ == '__main__':
-#     print(download_pdfs_and_save())
+if __name__ == '__main__':
+    print(download_pdfs_and_save())
