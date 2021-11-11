@@ -1,6 +1,7 @@
 import requests
 import os
 from bs4 import BeautifulSoup
+from unittest.mock import Mock
 
 # TODO: Move testing code into a separate sheet or within a separate function (currently
 # testing has been moved to separate file but cannot be called to add input yet)
@@ -190,7 +191,8 @@ def download_pdfs_and_save():
     download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name)
 
     return download_response
-    
 
-if __name__ == '__main__':
-    print(download_pdfs_and_save())
+
+
+# if __name__ == '__main__':
+#     print(download_pdfs_and_save())
