@@ -1,36 +1,45 @@
 import download_form_pdfs
-import unittest
-from io import StringIO
-from unittest.mock import patch
-
+from test_base import set_keyboard_input, get_display_output 
 
 
 ################ TESTS ##########
 
-def answerReturn():
-    ans = input('enter yes or no')
-    print(ans)
-    if ans == 'yes':
-        return 'you entered yes'
-    if ans == 'no':
-        return 'you entered no'
-
-
-class MyTestCase(unittest.TestCase):
-    def runTest(self, given_answer, expected_out):
-        with patch('builtins.input', return_value=given_answer), patch('sys.stdout', new=StringIO()) as fake_out:
-            answerReturn()
-            self.assertEqual(fake_out.getvalue().strip(), expected_out)
+def name_and_animal():
+    name = input('>> Tell me your name: ')
+    animal = input('>> What is your favorite animal? ')
     
-    def testNo(self):
-        self.runTest('you entered no', 'you entered no')
+    print('Hi {}! You like the {}.'.format(name, animal))
 
-    def testYes(self):
-        self.runTest('you entered yes', 'you entered yes')
+
+def test_1():
+    set_keyboard_input(['Stinky', 'Snake'])
+
+    name_and_animal()
+
+    output = get_display_output()
+
+    assert output == ['>> Tell me your name: ', 
+                      '>> What is your favorite animal? ',
+                      'Hi Stinky! You like the Snake.']
+
+def test_2():
+
+    set_keyboard_input(['sink', 'nail'])
+
+    name_and_animal()
+
+    output = get_display_output()
+
+    assert output == ['>> Tell me your name: ', 
+                      '>> What is your favorite animal? ',
+                      'Hi sink! You like the nail.']
+
+        
+
 
 if __name__ == '__main__':
-    unittest.main()
-
+    test_1()
+    test_2()
 
 
 # def run_test(testValue, expectedResult, description):
