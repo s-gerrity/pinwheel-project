@@ -151,10 +151,30 @@ nonsense_year_2 = 78
 #                       ">> Up until which year should be included? ",
 #                       "There are no PDF downloads for those years. If you think this is an error, please check for typos."]
 
-def test_years_backward():
-    """Tests for first year input to be lower than second year input; form name valid."""
+# def test_years_backward():
+#     """Tests for first year input to be lower than second year input; form name valid."""
 
-    set_keyboard_input([valid_form_formatting, end_year_valid, start_year_valid])
+#     set_keyboard_input([valid_form_formatting, end_year_valid, start_year_valid])
+
+#     print(download_form_pdfs.download_pdfs_and_save())
+
+#     output = get_display_output()
+
+#     assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+#                       ">> What year would you like the downloads to start at? ",
+#                       ">> Up until which year should be included? ",
+#                       "There are no PDF downloads for those years. If you think this is an error, please check for typos."]
+
+#############
+
+# pseudocode
+# a bunch of functions that call the same helper function 
+# helper contains the associated output
+
+
+def output_test():
+
+    # set_keyboard_input([valid_form_formatting, end_year_valid, start_year_valid])
 
     print(download_form_pdfs.download_pdfs_and_save())
 
@@ -164,4 +184,23 @@ def test_years_backward():
                       ">> What year would you like the downloads to start at? ",
                       ">> Up until which year should be included? ",
                       "There are no PDF downloads for those years. If you think this is an error, please check for typos."]
+
+
+def test_years_backward():
+    """Tests for first year input to be lower than second year input; form name valid."""
+
+    set_keyboard_input([valid_form_formatting, end_year_valid, start_year_valid])
+
+    return output_test()
+    
+    
+    # print(download_form_pdfs.download_pdfs_and_save())
+
+    # output = get_display_output()
+
+    # assert output == [">> You'll be able to download all the available PDFs for a given tax form within a time frame of your choosing. What is the name of the tax form you'd like to download? (Ex: Form W-2) ",
+    #                   ">> What year would you like the downloads to start at? ",
+    #                   ">> Up until which year should be included? ",
+    #                   "There are no PDF downloads for those years. If you think this is an error, please check for typos."]
+
 
