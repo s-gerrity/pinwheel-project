@@ -23,7 +23,7 @@ def get_url(tax_form_name):
 
     # Saved here with 200 items per page. Manual site checking defaults to 25 per. 
     url = "https://apps.irs.gov/app/picklist/list/priorFormPublication.html?indexOfFirstRow=0&sortColumn=sortOrder&value=" + form_name + "&criteria=formNumber&resultsPerPage=200&isDescending=false"
-    
+
     return url
 
 
@@ -46,6 +46,21 @@ def scrape_page(url):
     soup = BeautifulSoup(page.content, "html.parser")
 
     return soup
+
+
+def validate_form_input(soup):
+    """If the input has a typo or misspelling, the page will not produce results. 
+    Show the user a message to check their input."""
+
+    # Soup is a BS4 type. To check for a string, we need to temporarily convert it to a string.
+    soup_string = str(soup)
+
+    if 'No results were found that match your entry' in soup_string:
+        return 'There are no results that match your entry. Please check for typos and that you are using the correct form name.'
+        
+    else:
+        # Returns as a BS4 type
+        return soup
 
 
 def get_only_pdf_links(soup):
@@ -141,8 +156,15 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, sample_tax_form_name):
 def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name):
     """Perform all actions to find any PDF"s and download them to a subdirectory."""
 
-    # Collect any PDF links from the webpage
     soup = scrape_page(url)
+
+    # Check for typos or zero results
+    validate_response = validate_form_input(soup)
+
+    if 'no results' in validate_response:
+        return validate_response
+
+    # Collect any PDF links from the webpage
     only_pdf_links = get_only_pdf_links(soup)
     list_of_pdf_links = get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links)
 
@@ -186,7 +208,7 @@ def download_pdfs_and_save():
 
     list_of_form_years = make_list_of_years(start_year, end_year)
 
-    # this link will collect all PDFs to be downloaded
+    # this list will collect all PDFs to be downloaded
     list_of_pdf_links = []
     
     download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name)
