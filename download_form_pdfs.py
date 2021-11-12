@@ -134,7 +134,7 @@ def save_pdf(subdirectory_for_pdfs, list_of_pdf_links, sample_tax_form_name):
     """Save any PDFs available inside the subdirectory."""
 
     if list_of_pdf_links == []:
-        return 'There are no PDF downloads for those years'
+        return 'There are no PDF downloads for those years. If you think this is an error, please check for typos.'
 
     else:
         for i in range(len(list_of_pdf_links)):
@@ -164,14 +164,12 @@ def get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_ye
     if 'no results' in validate_response:
         return validate_response
 
-    # Collect any PDF links from the webpage
     only_pdf_links = get_only_pdf_links(soup)
     list_of_pdf_links = get_pdf_links(list_of_pdf_links, list_of_form_years, only_pdf_links)
 
     # Not 0 if there are still years that need forms downloaded
     if len(list_of_form_years) != 0:
 
-        # Check for pagination
         if_next = check_if_next_page(soup)
 
         # None is if there are no more pages available to check
