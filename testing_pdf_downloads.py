@@ -18,6 +18,9 @@ found_page_two_end_year = 2016
 beginning_available_end_year = 1954
 nonsense_year_1 = 555
 nonsense_year_2 = 78
+year_string = "khjkasd"
+
+# TODO: Add test for str instead of int with year; test what happens when no entry added.
 
 
 ########### TESTS TO CONFIRM ERRORS #############

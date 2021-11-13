@@ -31,6 +31,12 @@ def make_list_of_years(start_year, end_year):
     """Takes user input and creates a list of all years (inclusive)."""
 
     list_of_form_years = []
+    years_list = [start_year, end_year]
+
+    for input in years_list:
+        if input not in '0123456789':
+            print("MUST BE INT", input)
+            break
 
     for i in range(int(start_year), int(end_year)+1):
         list_of_form_years.append(i)
