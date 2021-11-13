@@ -27,16 +27,25 @@ def get_url(tax_form_name):
     return url
 
 
+def validate_years_input(start_year, end_year):
+    """Check if year entires are 4 numbers inside a string."""
+
+    years_list = [start_year, end_year]
+
+    for year in years_list:
+
+        for char in year:
+            if char not in '0123456789':
+
+                
+                return 'Invalid year inputs. Must be 4 numbers for both entires.'
+    return 'Valid year inputs'
+
+
 def make_list_of_years(start_year, end_year):
     """Takes user input and creates a list of all years (inclusive)."""
 
     list_of_form_years = []
-    years_list = [start_year, end_year]
-
-    for input in years_list:
-        if input not in '0123456789':
-            print("MUST BE INT", input)
-            break
 
     for i in range(int(start_year), int(end_year)+1):
         list_of_form_years.append(i)
@@ -210,14 +219,23 @@ def download_pdfs_and_save():
 
     url = get_url(sample_tax_form_name)
 
-    list_of_form_years = make_list_of_years(start_year, end_year)
+    # Check if year inputs are 4 nums in a string
+    year_validation = validate_years_input(start_year, end_year)
+    if year_validation == 'Invalid year inputs. Must be 4 numbers for both entires.':
+        download_response = year_validation
 
-    # this list will collect all PDFs to be downloaded
-    list_of_pdf_links = []
-    
-    download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name)
+        return download_response
 
-    return download_response
+    else:
+
+        list_of_form_years = make_list_of_years(start_year, end_year)
+
+        # this list will collect all PDFs to be downloaded
+        list_of_pdf_links = []
+        
+        download_response = get_downloads(url, list_of_pdf_links, list_of_form_years, start_year, end_year, sample_tax_form_name)
+
+        return download_response
 
 
 
